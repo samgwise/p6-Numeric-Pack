@@ -92,6 +92,10 @@ TODO
 
   * unsigned types
 
+  * larger types
+
+  * smaller types
+
 AUTHOR
 ======
 
