@@ -25,5 +25,5 @@
   ],
   "source-url" : "git://github.com/samgwise/p6-Numeric-Pack.git",
   "test-depends" : [ ],
-  "version" : "*"
+  "version" : "0.0.2"
 }
