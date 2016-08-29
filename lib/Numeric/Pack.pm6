@@ -24,9 +24,9 @@ Numeric::Pack - Convert perl6 Numerics to Bufs and back again!
   say "{ $int-buf.perl } -> { unpack-int32 $int-buf }";
 
   # pack and unpack specific byte orders (big-endian is the default)
-  my Buf $little-endian-buf = pack-int32 11, :endianness(little-endian);
+  my Buf $little-endian-buf = pack-int32 11, :byte-order(little-endian);
   say "{ $little-endian-buf.perl } -> {
-    unpack-int32 $little-endian-buf, :endianness(little-endian)
+    unpack-int32 $little-endian-buf, :byte-order(little-endian)
   }";
 
 
@@ -55,8 +55,8 @@ Numeric::Pack exports the enum Endianness by default (Endianness is exported as 
 =end table
 
 By default Numeric::Pack's pack and unpack functions return and accept big-endian Bufs.
-To override this provide the :endianness named parameter with the enum value for your desired behaviour.
-To disable byte order management pass :endianness(native-endian).
+To override this provide the :byte-order named parameter with the enum value for your desired behaviour.
+To disable byte order management pass :byte-order(native-endian).
 
 Use Numeric::Pack :ALL to export all exportable functionality.
 
@@ -75,6 +75,12 @@ Use :floats or :ints flags to export subsets of the module's functionality.
 =item unsigned types
 =item larger types
 =item smaller types
+
+=head1 CHANGES
+
+=begin table
+      changed named argument :endianness to :byte-order | Signitures now read more naturally | 2016-08-30
+=end table
 
 =head1 AUTHOR
 
@@ -110,7 +116,7 @@ enum Endianness is export(:MANDATORY) ( native-endian => 0, little-endian => 1, 
 # void pack_rat_to_float(int32_t n, int32_t d, char *bytes)
 sub pack_rat_to_float(int32, int32, CArray[uint8]) is native(&libnumpack) { * }
 
-sub pack-float(Rat(Cool) $rat, Endianness :$endianness = big-endian) returns Buf is export(:floats)
+sub pack-float(Rat(Cool) $rat, Endianness :$byte-order = big-endian) returns Buf is export(:floats)
 #= Pack a Rat into a single-precision floating-point Buf (e.g. float).
 #= Exported via tag :floats.
 #= Be aware that Rats and floats are not directly analogous  storage schemes and
@@ -119,24 +125,24 @@ sub pack-float(Rat(Cool) $rat, Endianness :$endianness = big-endian) returns Buf
   my $bytes = CArray[uint8].new;
   $bytes[3] = 0; #make room for 4 bytes
   pack_rat_to_float $rat.numerator, $rat.denominator, $bytes;
-  byte-array-to-buf($bytes, 4, :$endianness);
+  byte-array-to-buf($bytes, 4, :$byte-order);
 }
 
 # float unpack_bits_to_float(char *bytes)
 sub unpack_bits_to_float(CArray[uint8]) returns num32 is native(&libnumpack) { * }
 
-sub unpack-float(Buf $float-buf, Endianness :$endianness = big-endian) returns Numeric is export(:floats)
+sub unpack-float(Buf $float-buf, Endianness :$byte-order = big-endian) returns Numeric is export(:floats)
 #= Unpack a Buf containing a single-precision floating-point number (float) into a Numeric.
 #= Exported via tag :floats.
 {
   die "Unable to unpack buffer: expected 4 bytes but recieved { $float-buf.elems }" unless $float-buf.elems == 4;
-  unpack_bits_to_float(buf-to-byte-array $float-buf, :$endianness);
+  unpack_bits_to_float(buf-to-byte-array $float-buf, :$byte-order);
 }
 
 # void pack_int32(int32_t i, char *bytes)
 sub pack_int32(int32, CArray[uint8]) is native(&libnumpack) { * }
 
-sub pack-int32(Int(Cool) $int, Endianness :$endianness = big-endian) returns Buf is export(:ints)
+sub pack-int32(Int(Cool) $int, Endianness :$byte-order = big-endian) returns Buf is export(:ints)
 #= Pack an Int to an 4 byte integer buffer
 #= Exported via tag :ints.
 #= Be aware that the behaviour of Int values outside the range of a signed 32bit integer
@@ -146,18 +152,18 @@ sub pack-int32(Int(Cool) $int, Endianness :$endianness = big-endian) returns Buf
   my $bytes = CArray[uint8].new;
   $bytes[3] = 0; #make room for 4 bytes
   pack_int32 $int, $bytes;
-  byte-array-to-buf($bytes, 4, :$endianness);
+  byte-array-to-buf($bytes, 4, :$byte-order);
 }
 
 # int32_t unpack_int32(char *bytes)
 sub unpack_int32(CArray[uint8]) returns int32 is native(&libnumpack) { * }
 
-sub unpack-int32(Buf $int-buf, Endianness :$endianness = big-endian) returns Int is export(:ints)
+sub unpack-int32(Buf $int-buf, Endianness :$byte-order = big-endian) returns Int is export(:ints)
 #= Unpack a signed 4 byte integer buffer.
 #= Exported via tag :ints.
 {
   die "Unable to unpack buffer: expected 4 bytes but recieved { $int-buf.elems }" unless $int-buf.elems == 4;
-  unpack_int32 buf-to-byte-array $int-buf, :$endianness;
+  unpack_int32 buf-to-byte-array $int-buf, :$byte-order;
 }
 
 ### 8 byte types:
@@ -165,7 +171,7 @@ sub unpack-int32(Buf $int-buf, Endianness :$endianness = big-endian) returns Int
 # void pack_rat_to_double(int64_t n, int64_t d, char *bytes)
 sub pack_rat_to_double(int64, int64, CArray[uint8]) returns int64 is native(&libnumpack) { * }
 
-sub pack-double(Rat(Cool) $rat, Endianness :$endianness = big-endian) returns Buf is export(:floats)
+sub pack-double(Rat(Cool) $rat, Endianness :$byte-order = big-endian) returns Buf is export(:floats)
 #= Pack a Rat into a double-precision floating-point Buf (e.g. double).
 #= Exported via tag :floats.
 #= Be aware that Rats and doubles are not directly analogous  storage schemes and
@@ -174,24 +180,24 @@ sub pack-double(Rat(Cool) $rat, Endianness :$endianness = big-endian) returns Bu
   my $bytes = CArray[uint8].new;
   $bytes[7] = 0; #make room for 8 bytes
   pack_rat_to_double $rat.numerator, $rat.denominator, $bytes;
-  byte-array-to-buf($bytes, 8, :$endianness);
+  byte-array-to-buf($bytes, 8, :$byte-order);
 }
 
 # double unpack_bits_to_double(char *bytes)
 sub unpack_bits_to_double(CArray[uint8]) returns num64 is native(&libnumpack) { * }
 
-sub unpack-double(Buf $double-buf, Endianness :$endianness = big-endian) returns Numeric is export((:floats))
+sub unpack-double(Buf $double-buf, Endianness :$byte-order = big-endian) returns Numeric is export((:floats))
 #= Unpack a Buf containing a single-precision floating-point number (float) into a Numeric.
 #= Exported via tag :floats.
 {
   die "Unable to unpack buffer: expected 8 bytes but recieved { $double-buf.elems }" unless $double-buf.elems == 8;
-  unpack_bits_to_double(buf-to-byte-array $double-buf, :$endianness);
+  unpack_bits_to_double(buf-to-byte-array $double-buf, :$byte-order);
 }
 
 # void pack_int64(int64_t i, char *bytes)
 sub pack_int64(int64, CArray[uint8]) is native(&libnumpack) { * }
 
-sub pack-int64(Int(Cool) $int, Endianness :$endianness = big-endian) returns Buf is export(:ints)
+sub pack-int64(Int(Cool) $int, Endianness :$byte-order = big-endian) returns Buf is export(:ints)
 #= Pack an Int to an 8 byte integer buffer
 #= Exported via tag :ints.
 #= Be aware that the behaviour of Int values outside the range of a signed 64bit integer
@@ -201,18 +207,18 @@ sub pack-int64(Int(Cool) $int, Endianness :$endianness = big-endian) returns Buf
   my $bytes = CArray[uint8].new;
   $bytes[7] = 0; #make room for 8 bytes
   pack_int64 $int, $bytes;
-  byte-array-to-buf($bytes, 8, :$endianness);
+  byte-array-to-buf($bytes, 8, :$byte-order);
 }
 
 # int64_t unpack_int64(char *bytes)
 sub unpack_int64(CArray[uint8]) returns int64 is native(&libnumpack) { * }
 
-sub unpack-int64(Buf $int-buf, Endianness :$endianness = big-endian) returns Int is export(:ints)
+sub unpack-int64(Buf $int-buf, Endianness :$byte-order = big-endian) returns Int is export(:ints)
 #= Unpack a signed 8 byte integer buffer.
 #= Exported via tag :ints.
 {
   die "Unable to unpack buffer: expected 8 bytes but recieved { $int-buf.elems }" unless $int-buf.elems == 8;
-  unpack_int64 buf-to-byte-array $int-buf, :$endianness;
+  unpack_int64 buf-to-byte-array $int-buf, :$byte-order;
 }
 
 
@@ -223,14 +229,14 @@ sub unpack-int64(Buf $int-buf, Endianness :$endianness = big-endian) returns Int
 #  which must also be exported up to any code using this module
 
 # use state until is chached trait is no longer experimental
-sub native-endianness() returns Endianness {
-  state Endianness $native-bo = assess-native-endianness;
+sub native-byte-order() returns Endianness {
+  state Endianness $native-bo = assess-native-byte-order;
   $native-bo;
 }
 
-sub assess-native-endianness() returns Endianness {
+sub assess-native-byte-order() returns Endianness {
   #= Get a native to break the int into bytes and observe which endian order they use
-  given pack-int32(0b00000001, :endianness(native-endian))[0] {
+  given pack-int32(0b00000001, :byte-order(native-endian))[0] {
     when 0b00000000 {
       return big-endian;
     }
@@ -238,20 +244,20 @@ sub assess-native-endianness() returns Endianness {
       return little-endian;
     }
     default {
-      die "Unable to determine local endianness!";
+      die "Unable to determine local byte-order!";
     }
   }
 }
 
-sub byte-array-to-buf(CArray[uint8] $bytes, Int $size, Endianness :$endianness = native-endian) returns Buf {
-  given $endianness {
+sub byte-array-to-buf(CArray[uint8] $bytes, Int $size, Endianness :$byte-order = native-endian) returns Buf {
+  given $byte-order {
     when little-endian {
-      return Buf.new($bytes[0..($size - 1)]) if native-endianness() eqv little-endian;
+      return Buf.new($bytes[0..($size - 1)]) if native-byte-order() eqv little-endian;
       # else return a reversed byte order to convert big to little
       return Buf.new($bytes[0..($size - 1)].reverse);
     }
     when big-endian {
-      return Buf.new($bytes[0..($size - 1)]) if native-endianness() eqv big-endian;
+      return Buf.new($bytes[0..($size - 1)]) if native-byte-order() eqv big-endian;
       # else return a reversed byte order to convert little to big
       return Buf.new($bytes[0..($size - 1)].reverse);
     }
@@ -262,13 +268,13 @@ sub byte-array-to-buf(CArray[uint8] $bytes, Int $size, Endianness :$endianness =
   }
 }
 
-sub buf-to-byte-array(Buf $buf, Endianness :$endianness = native-endian) returns CArray[uint8] {
+sub buf-to-byte-array(Buf $buf, Endianness :$byte-order = native-endian) returns CArray[uint8] {
   my $bytes = CArray[uint8].new;
   my $end = $buf.elems - 1;
 
-  given $endianness {
+  given $byte-order {
     when little-endian {
-      if native-endianness() eqv little-endian {
+      if native-byte-order() eqv little-endian {
         $buf[0..$end].kv.reverse.map( -> $k, $v { $bytes[$k] = $v } );
       }
       else {
@@ -278,7 +284,7 @@ sub buf-to-byte-array(Buf $buf, Endianness :$endianness = native-endian) returns
       return $bytes;
     }
     when big-endian {
-      if native-endianness() eqv big-endian {
+      if native-byte-order() eqv big-endian {
         $buf[0..$end].kv.reverse.map( -> $k, $v { $bytes[$k] = $v } );
       }
       else {

@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/samgwise/p6-Numeric-Pack.svg?branch=master)](https://travis-ci.org/samgwise/p6-Numeric-Pack)
+
 NAME
 ====
 
@@ -21,9 +23,9 @@ SYNOPSIS
     say "{ $int-buf.perl } -> { unpack-int32 $int-buf }";
 
     # pack and unpack specific byte orders (big-endian is the default)
-    my Buf $little-endian-buf = pack-int32 11, :endianness(little-endian);
+    my Buf $little-endian-buf = pack-int32 11, :byte-order(little-endian);
     say "{ $little-endian-buf.perl } -> {
-      unpack-int32 $little-endian-buf, :endianness(little-endian)
+      unpack-int32 $little-endian-buf, :byte-order(little-endian)
     }";
 
 DESCRIPTION
@@ -56,7 +58,7 @@ Numeric::Pack exports the enum Endianness by default (Endianness is exported as 
   </tr>
 </table>
 
-By default Numeric::Pack's pack and unpack functions return and accept big-endian Bufs. To override this provide the :endianness named parameter with the enum value for your desired behaviour. To disable byte order management pass :endianness(native-endian).
+By default Numeric::Pack's pack and unpack functions return and accept big-endian Bufs. To override this provide the :byte-order named parameter with the enum value for your desired behaviour. To disable byte order management pass :byte-order(native-endian).
 
 Use Numeric::Pack :ALL to export all exportable functionality.
 
@@ -96,6 +98,17 @@ TODO
 
   * smaller types
 
+CHANGES
+=======
+
+<table>
+  <tr>
+    <td>changed named argument :endianness to :byte-order</td>
+    <td>Signitures now read more naturally</td>
+    <td>2016-08-30</td>
+  </tr>
+</table>
+
 AUTHOR
 ======
 
@@ -116,7 +129,7 @@ FUNCTIONS
 ```
 sub pack-float(
     Cool $rat, 
-    Endianness :$endianness = Endianness::big-endian
+    Endianness :$byte-order = Endianness::big-endian
 ) returns Buf
 ```
 
@@ -127,7 +140,7 @@ Pack a Rat into a single-precision floating-point Buf (e.g. float). Exported via
 ```
 sub unpack-float(
     Buf $float-buf, 
-    Endianness :$endianness = Endianness::big-endian
+    Endianness :$byte-order = Endianness::big-endian
 ) returns Numeric
 ```
 
@@ -138,7 +151,7 @@ Unpack a Buf containing a single-precision floating-point number (float) into a 
 ```
 sub pack-int32(
     Cool $int, 
-    Endianness :$endianness = Endianness::big-endian
+    Endianness :$byte-order = Endianness::big-endian
 ) returns Buf
 ```
 
@@ -149,7 +162,7 @@ Pack an Int to an 4 byte integer buffer Exported via tag :ints. Be aware that th
 ```
 sub unpack-int32(
     Buf $int-buf, 
-    Endianness :$endianness = Endianness::big-endian
+    Endianness :$byte-order = Endianness::big-endian
 ) returns Int
 ```
 
@@ -160,7 +173,7 @@ Unpack a signed 4 byte integer buffer. Exported via tag :ints.
 ```
 sub pack-double(
     Cool $rat, 
-    Endianness :$endianness = Endianness::big-endian
+    Endianness :$byte-order = Endianness::big-endian
 ) returns Buf
 ```
 
@@ -171,7 +184,7 @@ Pack a Rat into a double-precision floating-point Buf (e.g. double). Exported vi
 ```
 sub unpack-double(
     Buf $double-buf, 
-    Endianness :$endianness = Endianness::big-endian
+    Endianness :$byte-order = Endianness::big-endian
 ) returns Numeric
 ```
 
@@ -182,7 +195,7 @@ Unpack a Buf containing a single-precision floating-point number (float) into a 
 ```
 sub pack-int64(
     Cool $int, 
-    Endianness :$endianness = Endianness::big-endian
+    Endianness :$byte-order = Endianness::big-endian
 ) returns Buf
 ```
 
@@ -193,7 +206,7 @@ Pack an Int to an 8 byte integer buffer Exported via tag :ints. Be aware that th
 ```
 sub unpack-int64(
     Buf $int-buf, 
-    Endianness :$endianness = Endianness::big-endian
+    Endianness :$byte-order = Endianness::big-endian
 ) returns Int
 ```
 

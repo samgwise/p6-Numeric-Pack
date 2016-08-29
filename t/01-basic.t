@@ -9,29 +9,29 @@ use Numeric::Pack :ALL;
 #
 # Test byte order management
 #
-is ( pack-int32 0x01, :endianness(big-endian)    )[0], 0x00, "Endian test: pack big-endian int32";
-is ( pack-int32 0x01, :endianness(little-endian) )[0], 0x01, "Endian test: pack little-endian int32";
+is ( pack-int32 0x01, :byte-order(big-endian)    )[0], 0x00, "Endian test: pack big-endian int32";
+is ( pack-int32 0x01, :byte-order(little-endian) )[0], 0x01, "Endian test: pack little-endian int32";
 
-is ( unpack-int32 Buf.new(0, 0, 0, 0x01), :endianness(big-endian)     ), 0x01, "Endian test: unpack big-endian int32";
-is ( unpack-int32 Buf.new(0x01, 0, 0, 0), :endianness(little-endian)  ), 0x01, "Endian test: unpack big-endian int32";
+is ( unpack-int32 Buf.new(0, 0, 0, 0x01), :byte-order(big-endian)     ), 0x01, "Endian test: unpack big-endian int32";
+is ( unpack-int32 Buf.new(0x01, 0, 0, 0), :byte-order(little-endian)  ), 0x01, "Endian test: unpack big-endian int32";
 
 #
 # Test packing
 #
-is pack-float(  12.375, :endianness(big-endian) ).perl, Buf.new(0x41, 0x46, 0x00, 0).perl,              "pack-float 12.375";
-is pack-double( 12.375, :endianness(big-endian) ).perl, Buf.new(0x40, 0x28, 0xC0, 0, 0, 0, 0, 0).perl,  "pack-double 12.375";
+is pack-float(  12.375, :byte-order(big-endian) ).perl, Buf.new(0x41, 0x46, 0x00, 0).perl,              "pack-float 12.375";
+is pack-double( 12.375, :byte-order(big-endian) ).perl, Buf.new(0x40, 0x28, 0xC0, 0, 0, 0, 0, 0).perl,  "pack-double 12.375";
 
-is pack-int32(1024, :endianness(big-endian)).perl, Buf.new(0, 0, 0x04, 0).perl,                 "pack-int32 1024";
-is pack-int64(1024, :endianness(big-endian)).perl, Buf.new(0, 0, 0x00, 0, 0, 0, 0x04, 0).perl,  "pack-int64 1024";
+is pack-int32(1024, :byte-order(big-endian)).perl, Buf.new(0, 0, 0x04, 0).perl,                 "pack-int32 1024";
+is pack-int64(1024, :byte-order(big-endian)).perl, Buf.new(0, 0, 0x00, 0, 0, 0, 0x04, 0).perl,  "pack-int64 1024";
 
 #
 # Test unpacking
 #
-is unpack-float(  Buf.new(0x41, 0x46, 0x00, 0),             :endianness(big-endian) ), 12.375, "unpack-float 12.375";
-is unpack-double( Buf.new(0x40, 0x28, 0xC0, 0, 0, 0, 0, 0), :endianness(big-endian) ), 12.375, "unpack-float 12.375";
+is unpack-float(  Buf.new(0x41, 0x46, 0x00, 0),             :byte-order(big-endian) ), 12.375, "unpack-float 12.375";
+is unpack-double( Buf.new(0x40, 0x28, 0xC0, 0, 0, 0, 0, 0), :byte-order(big-endian) ), 12.375, "unpack-float 12.375";
 
-is unpack-int32(Buf.new(0, 0, 0x04, 0),                :endianness(big-endian)), 1024, "unpack-int32 1024";
-is unpack-int64(Buf.new(0, 0, 0x00, 0, 0, 0, 0x04, 0), :endianness(big-endian)), 1024, "unpack-int64 1024";
+is unpack-int32(Buf.new(0, 0, 0x04, 0),                :byte-order(big-endian)), 1024, "unpack-int32 1024";
+is unpack-int64(Buf.new(0, 0, 0x00, 0, 0, 0, 0x04, 0), :byte-order(big-endian)), 1024, "unpack-int64 1024";
 
 #
 # Test limits
