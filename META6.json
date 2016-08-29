@@ -23,7 +23,7 @@
     "lib/libnumpack.dll",
     "libnumpack.dylib"
   ],
-  "source-url" : "https://github.com/samgwise/p6-Numeric-Pack.git",
+  "source-url" : "git://github.com/samgwise/p6-Numeric-Pack.git",
   "test-depends" : [ ],
   "version" : "*"
 }
