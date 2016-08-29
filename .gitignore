@@ -1,7 +1,9 @@
 /blib/
 /src/*.o
+/src/*.dll.a
 /src/Makefile
 /.panda-work
 /resources/*.so
 /resources/*.dylib
+/resources/*.dll
 .precomp/
