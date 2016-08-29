@@ -5,21 +5,21 @@ unit module Numeric::Pack;
 
 =head1 NAME
 
-Numeric::Pack - Convert perl6 numerics to buffers and back again!
+Numeric::Pack - Convert perl6 Numerics to Bufs and back again!
 
 =head1 SYNOPSIS
 
   use Numeric::Pack :ALL;
 
   # pack and unpack floats
-  my Buf $float-buf = pack-float-rat 2.5;
+  my Buf $float-buf = pack-float 2.5;
   say "{ $float-buf.perl } -> { unpack-float $float-buf }";
 
   # pack and unpack doubles
-  my Buf $double-buf = pack-double-rat 2.5;
+  my Buf $double-buf = pack-double 2.5;
   say "{ $double-buf.perl } -> { unpack-double $double-buf }";
 
-  # pack and unpack Int (see also int64 varients)
+  # pack and unpack Int (see also int64 variants)
   my Buf $int-buf = pack-int32 11;
   say "{ $int-buf.perl } -> { unpack-int32 $int-buf }";
 
@@ -32,17 +32,22 @@ Numeric::Pack - Convert perl6 numerics to buffers and back again!
 
 =head1 DESCRIPTION
 
-Numeric::Pack is a Perl6 module for packing values of the Numeric role into Buf objects.
+Numeric::Pack is a Perl6 module for packing values of the Numeric role into Buf objects
+(With the exception of Complex numbers).
 Currently there are no core language mechanisms for packing the majority of Numeric types into Bufs.
-Both the experimental pack language feature and the PackUnpack module do not yet impliment packing to and from floating-point represetnations,
+Both the experimental pack language feature and the PackUnpack module do not yet implement packing to and from floating-point representations,
 A feature used by many modules in the Perl5 pack and unpack routines.
-Numeric::Pack fills this gap in functionality via a packaged native library and a corosponding NativeCall interface.
-Useing a native library to pack Numeric types avoids many pitfalls of implimenting a pure perl solution and provides better performance.
+Numeric::Pack fills this gap in functionality via a packaged native C library and a corresponding NativeCall interface.
+By relying on C to pack and unpack floating-point types we avoid the need to implement error prone bit manipulations in pure perl.
+Fixed size integer types are included for completeness and are used internally to assist in assessing a system's byte ordering.
 
-Numeric::Pack exports the enum Endianness by default (Endianness is experted as :MANDATORY).
+Byte ordering (endianness) is managed at the Perl6 level to make it easier to extend later if necessary.
+Byte ordering is controlled with the Endianness enum.
+
+Numeric::Pack exports the enum Endianness by default (Endianness is exported as :MANDATORY).
 
 =begin table
-        Endianness       | Desc.
+        Endianness       | Description
         ===============================================================
         native-endian    | The native byte ordering of the current system
         little-endian    | Common byte ordering of contemporary CPUs
@@ -53,18 +58,23 @@ By default Numeric::Pack's pack and unpack functions return and accept big-endia
 To override this provide the :endianness named parameter with the enum value for your desired behaviour.
 To disable byte order management pass :endianness(native-endian).
 
-Use Numeric::Pack :ALL to export all exportable fucntionality.
+Use Numeric::Pack :ALL to export all exportable functionality.
 
 Use :floats or :ints flags to export subsets of the module's functionality.
 =begin table
-        :floats              | :ints
+        :floats           | :ints
         ===============================
-        pack-float-rat    | pack-int32
+        pack-float        | pack-int32
         unpack-float      | unpack-int32
-        pack-double-rat   | pack-int64
+        pack-double       | pack-int64
         unpack-double     | unpack-int64
 =end table
 
+=head1 TODO
+
+=item unsigned types
+=item larger types
+=item smaller types
 
 =head1 AUTHOR
 
@@ -88,11 +98,7 @@ sub libnumpack {
     return ~(%?RESOURCES{"libnumpack$so"});
 }
 
-#= The Endianness enum is exported by default.
-#= Use native-endian, little-endian and big-endian to specify the byte orderings.
-#= For pack functions the :endianness parameter specifies the byte order of the output
-#= For unpack functions :endianness specifies the byte order of the input buffer
-#= While heard there are other endian behaviours about, little and big are the most common.
+# While heard there are other endian behaviours about, little and big are the most common.
 enum Endianness is export(:MANDATORY) ( native-endian => 0, little-endian => 1, big-endian => 2 );
 
 #
@@ -104,11 +110,11 @@ enum Endianness is export(:MANDATORY) ( native-endian => 0, little-endian => 1, 
 # void pack_rat_to_float(int32_t n, int32_t d, char *bytes)
 sub pack_rat_to_float(int32, int32, CArray[uint8]) is native(&libnumpack) { * }
 
-sub pack-float-rat(Rat(Cool) $rat, Endianness :$endianness = big-endian) returns Buf is export(:floats)
+sub pack-float(Rat(Cool) $rat, Endianness :$endianness = big-endian) returns Buf is export(:floats)
 #= Pack a Rat into a single-precision floating-point Buf (e.g. float).
 #= Exported via tag :floats.
-#= Be aware that Rats and floats are not directly anaolgous storage schemes and
-#=  as such you should expect some variation in the values packed via this method and the orginal value.
+#= Be aware that Rats and floats are not directly analogous  storage schemes and
+#=  as such you should expect some variation in the values packed via this method and the original   value.
 {
   my $bytes = CArray[uint8].new;
   $bytes[3] = 0; #make room for 4 bytes
@@ -131,7 +137,7 @@ sub unpack-float(Buf $float-buf, Endianness :$endianness = big-endian) returns N
 sub pack_int32(int32, CArray[uint8]) is native(&libnumpack) { * }
 
 sub pack-int32(Int(Cool) $int, Endianness :$endianness = big-endian) returns Buf is export(:ints)
-#= Pack an Int to an 4 byte intger buffer
+#= Pack an Int to an 4 byte integer buffer
 #= Exported via tag :ints.
 #= Be aware that the behaviour of Int values outside the range of a signed 32bit integer
 #= [−2,147,483,648 to 2,147,483,647]
@@ -147,6 +153,7 @@ sub pack-int32(Int(Cool) $int, Endianness :$endianness = big-endian) returns Buf
 sub unpack_int32(CArray[uint8]) returns int32 is native(&libnumpack) { * }
 
 sub unpack-int32(Buf $int-buf, Endianness :$endianness = big-endian) returns Int is export(:ints)
+#= Unpack a signed 4 byte integer buffer.
 #= Exported via tag :ints.
 {
   die "Unable to unpack buffer: expected 4 bytes but recieved { $int-buf.elems }" unless $int-buf.elems == 4;
@@ -158,11 +165,11 @@ sub unpack-int32(Buf $int-buf, Endianness :$endianness = big-endian) returns Int
 # void pack_rat_to_double(int64_t n, int64_t d, char *bytes)
 sub pack_rat_to_double(int64, int64, CArray[uint8]) returns int64 is native(&libnumpack) { * }
 
-sub pack-double-rat(Rat(Cool) $rat, Endianness :$endianness = big-endian) returns Buf is export(:floats)
+sub pack-double(Rat(Cool) $rat, Endianness :$endianness = big-endian) returns Buf is export(:floats)
 #= Pack a Rat into a double-precision floating-point Buf (e.g. double).
 #= Exported via tag :floats.
-#= Be aware that Rats and doubles are not directly anaolgous storage schemes and
-#=  as such you should expect some variation in the values packed via this method and the orginal value.
+#= Be aware that Rats and doubles are not directly analogous  storage schemes and
+#=  as such you should expect some variation in the values packed via this method and the original   value.
 {
   my $bytes = CArray[uint8].new;
   $bytes[7] = 0; #make room for 8 bytes
@@ -201,6 +208,7 @@ sub pack-int64(Int(Cool) $int, Endianness :$endianness = big-endian) returns Buf
 sub unpack_int64(CArray[uint8]) returns int64 is native(&libnumpack) { * }
 
 sub unpack-int64(Buf $int-buf, Endianness :$endianness = big-endian) returns Int is export(:ints)
+#= Unpack a signed 8 byte integer buffer.
 #= Exported via tag :ints.
 {
   die "Unable to unpack buffer: expected 8 bytes but recieved { $int-buf.elems }" unless $int-buf.elems == 8;
@@ -214,8 +222,14 @@ sub unpack-int64(Buf $int-buf, Endianness :$endianness = big-endian) returns Int
 # Keep these here as they depend on the Endianness enum
 #  which must also be exported up to any code using this module
 
+# use state until is chached trait is no longer experimental
 sub native-endianness() returns Endianness {
-  # Get a native to break the int into bytes and observe which endian order they use
+  state Endianness $native-bo = assess-native-endianness;
+  $native-bo;
+}
+
+sub assess-native-endianness() returns Endianness {
+  #= Get a native to break the int into bytes and observe which endian order they use
   given pack-int32(0b00000001, :endianness(native-endian))[0] {
     when 0b00000000 {
       return big-endian;

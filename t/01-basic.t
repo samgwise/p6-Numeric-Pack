@@ -1,3 +1,4 @@
+#! /usr/bin/env perl6
 use v6;
 use Test;
 use Numeric::Pack;
@@ -17,8 +18,8 @@ is ( unpack-int32 Buf.new(0x01, 0, 0, 0), :endianness(little-endian)  ), 0x01, "
 #
 # Test packing
 #
-is pack-float-rat(  12.375, :endianness(big-endian) ).perl, Buf.new(0x41, 0x46, 0x00, 0).perl,              "pack-float-rat 12.375";
-is pack-double-rat( 12.375, :endianness(big-endian) ).perl, Buf.new(0x40, 0x28, 0xC0, 0, 0, 0, 0, 0).perl,  "pack-double-rat 12.375";
+is pack-float(  12.375, :endianness(big-endian) ).perl, Buf.new(0x41, 0x46, 0x00, 0).perl,              "pack-float 12.375";
+is pack-double( 12.375, :endianness(big-endian) ).perl, Buf.new(0x40, 0x28, 0xC0, 0, 0, 0, 0, 0).perl,  "pack-double 12.375";
 
 is pack-int32(1024, :endianness(big-endian)).perl, Buf.new(0, 0, 0x04, 0).perl,                 "pack-int32 1024";
 is pack-int64(1024, :endianness(big-endian)).perl, Buf.new(0, 0, 0x00, 0, 0, 0, 0x04, 0).perl,  "pack-int64 1024";
@@ -43,8 +44,8 @@ is unpack-int64( pack-int64 0 ),                           0,                   
 is unpack-int64( pack-int64 −9_223_372_036_854_775_808 ), −9_223_372_036_854_775_808, "pack -> unpack int64 lower limit";
 is unpack-int64( pack-int64  9_223_372_036_854_775_807 ),  9_223_372_036_854_775_807, "pack -> unpack int64 upper limit";
 
-is unpack-float(  pack-float-rat 0 ), 0.Rat, "pack -> unpack float-rat 0";
-is unpack-double( pack-double-rat 0), 0.Rat, "pack -> unpack double-rat 0";
+is unpack-float(  pack-float 0 ), 0.Rat, "pack -> unpack float-rat 0";
+is unpack-double( pack-double 0), 0.Rat, "pack -> unpack double-rat 0";
 
 my Buf $nan-buffer .= new(0xff, 0xff, 0xff, 0xff);
 is unpack-float($nan-buffer), NaN, "unpack-float NaN";
