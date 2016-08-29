@@ -1,0 +1,21 @@
+{
+  "authors" : [
+    "Sam Gillespie"
+  ],
+  "build-depends" : [ ],
+  "depends" : [ ],
+  "description" : "Convert perl6 numerics to buffers and back again!",
+  "name" : "Numeric::Pack",
+  "perl" : "6.c",
+  "provides" : {
+    "Numeric::Pack" : "lib/Numeric/Pack.pm6"
+  },
+  "resources" : [
+    "lib/libnumpack.so",
+    "lib/libnumpack.dll",
+    "libnumpack.dylib"
+  ],
+  "source-url" : "",
+  "test-depends" : [ ],
+  "version" : "*"
+}
