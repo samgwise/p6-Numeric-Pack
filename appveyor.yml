@@ -12,9 +12,9 @@ install:
   - rakudobrew build panda
   - cd %APPVEYOR_BUILD_FOLDER%
   - panda --notests installdeps .
-
-build:
   - perl6 -MPanda::Builder -e 'Panda::Builder.build(~$*CWD)'
+
+build: false
 
 test_script:
   - prove -v -e "perl6 -Ilib" t/
