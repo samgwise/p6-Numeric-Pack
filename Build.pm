@@ -4,6 +4,8 @@ use Native::Resources::Build;
 
 class Build is Panda::Builder {
     method build($workdir) {
+        mkdir 'resources';
+        mkdir 'resources/lib';
         make($workdir, "$workdir/resources/lib", :libname<numpack>);
     }
 }
