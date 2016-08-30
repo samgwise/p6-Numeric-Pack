@@ -8,15 +8,25 @@ install:
   - SET PATH=C:\strawberry\c\bin;C:\strawberry\perl\site\bin;C:\strawberry\perl\bin;%PATH%
   - git clone https://github.com/tadzik/rakudobrew %USERPROFILE%\rakudobrew
   - SET PATH=%USERPROFILE%\rakudobrew\bin;%PATH%
-  - rakudobrew build moar 2016.03
-  - rakudobrew build build-panda
+  - rakudobrew build moar
+  - rakudobrew build panda
   - cd %APPVEYOR_BUILD_FOLDER%
   - panda --notests installdeps .
 
-build: off
+build:
+  - perl6 -MPanda::Builder -e 'Panda::Builder.build(~$*CWD)'
 
 test_script:
-  - perl6 -MPanda::Builder -e 'Panda::Builder.build(~$*CWD)'
   - prove -v -e "perl6 -Ilib" t/
 
 shallow_clone: true
+
+notifications:
+
+  # Email
+  - provider: Email
+    to:
+      - samgwise@gmail.com
+    subject: 'Numeric::Pack build {{status}}'           # optional
+    message: "{{message}}, {{commitId}}, {{status}}"    # optional
+    on_build_status_changed: true
