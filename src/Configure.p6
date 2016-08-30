@@ -6,7 +6,7 @@
 use v6;
 use LibraryMake;
 
-my $destdir = '../resources';
+my $destdir = '../resources/lib';
 mkdir $destdir;
 my %vars = get-vars($destdir);
 process-makefile('.', %vars);
