@@ -101,7 +101,7 @@ use LibraryMake;
 # Find our compiled library.
 sub libnumpack {
     my $so = get-vars('')<SO>;
-    return ~(%?RESOURCES{"libnumpack$so"});
+    return ~(%?RESOURCES{"lib/libnumpack$so"});
 }
 
 # While heard there are other endian behaviours about, little and big are the most common.

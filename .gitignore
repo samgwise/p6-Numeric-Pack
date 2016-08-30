@@ -1,9 +1,9 @@
 /blib/
-/src/*.o
-/src/*.dll.a
-/src/Makefile
+*.o
+*.dll.a
+Makefile
 /.panda-work
-/resources/*.so
-/resources/*.dylib
-/resources/*.dll
+*.so
+*.dylib
+*.dll
 .precomp/

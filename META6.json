@@ -3,10 +3,8 @@
     "Sam Gillespie"
   ],
   "build-depends" : [
-    "Panda::Common",
     "Panda::Builder",
-    "LibraryMake",
-    "Shell::Command"
+    "Native::Resources"
   ],
   "depends" : [
     "LibraryMake",
@@ -19,11 +17,11 @@
     "Numeric::Pack" : "lib/Numeric/Pack.pm6"
   },
   "resources" : [
-    "libnumpack.so",
-    "libnumpack.dll",
-    "libnumpack.dylib"
+    "lib/libnumpack.so",
+    "lib/libnumpack.dll",
+    "lib/libnumpack.dylib"
   ],
   "source-url" : "git://github.com/samgwise/p6-Numeric-Pack.git",
   "test-depends" : [ ],
-  "version" : "0.0.2"
+  "version" : "0.1.1"
 }
