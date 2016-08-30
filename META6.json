@@ -19,7 +19,9 @@
     "Numeric::Pack" : "lib/Numeric/Pack.pm6"
   },
   "resources" : [
-    "libnumpack.so"
+    "libnumpack.so",
+    "libnumpack.dll",
+    "libnumpack.dylib"
   ],
   "source-url" : "git://github.com/samgwise/p6-Numeric-Pack.git",
   "test-depends" : [ ],
