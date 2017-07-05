@@ -2,6 +2,7 @@
   "authors" : [
     "Sam Gillespie"
   ],
+  "tags": ["Binary", "Buf", "Native"],
   "build-depends" : [
     "Panda::Builder",
     "Native::Resources"
@@ -12,6 +13,7 @@
   ],
   "description" : "Convert perl6 Numerics to Bufs and back again!",
   "name" : "Numeric::Pack",
+  "license" : "Artistic-2.0",
   "perl" : "6.c",
   "provides" : {
     "Numeric::Pack" : "lib/Numeric/Pack.pm6"
@@ -23,5 +25,5 @@
   ],
   "source-url" : "git://github.com/samgwise/p6-Numeric-Pack.git",
   "test-depends" : [ ],
-  "version" : "0.1.1"
+  "version" : "0.2.0"
 }
