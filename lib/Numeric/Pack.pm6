@@ -264,8 +264,8 @@ sub pack-uint64(Int(Cool) $int, Endianness :$byte-order = big-endian) returns Bu
 #= Be aware that the behaviour of Int values outside the range of a signed 64bit integer
 #= [0 to 18,446,744,073,709,551,615]
 #= is undefined.
-#= BE WARNED for reasons unknown values above 7bytes are represented as a BigInt and cannot be unboxed!
-#= Maybe this will be fixed but for know this function is faulty and untested due to this behaviour.
+#= BE WARNED for reasons unknown values above 7 bytes are represented as a BigInt and cannot be unboxed!
+#= Maybe this will be fixed but for now this function is faulty and untested due to this behaviour.
 {
   my $bytes = CArray[uint8].new;
   $bytes[7] = 0; #make room for 8 bytes
@@ -279,8 +279,8 @@ sub unpack_uint64(CArray[uint8]) returns uint64 is native(&libnumpack) { * }
 sub unpack-uint64(Buf $int-buf, Endianness :$byte-order = big-endian) returns Int is export(:ints)
 #= Unpack an unsigned 8 byte integer buffer.
 #= Exported via tag :ints.
-#= BE WARNED for reasons unknown values above 7bytes are lost!
-#= Maybe this will be fixed but for know this function is faulty and untested due to this behaviour.
+#= BE WARNED for reasons unknown values above 7 bytes are lost!
+#= Maybe this will be fixed but for now this function is faulty and untested due to this behaviour.
 {
   die "Unable to unpack buffer: expected 8 bytes but recieved { $int-buf.elems }" unless $int-buf.elems == 8;
   unpack_uint64 buf-to-byte-array($int-buf, :$byte-order);

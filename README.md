@@ -1,4 +1,6 @@
 [![Build Status](https://travis-ci.org/samgwise/p6-Numeric-Pack.svg?branch=master)](https://travis-ci.org/samgwise/p6-Numeric-Pack)
+
+
 NAME
 ====
 
@@ -150,7 +152,7 @@ FUNCTIONS
 
 ```
 sub pack-float(
-    Cool $rat,
+    Cool $rat, 
     Endianness :$byte-order = Endianness::big-endian
 ) returns Buf
 ```
@@ -161,7 +163,7 @@ Pack a Rat into a single-precision floating-point Buf (e.g. float). Exported via
 
 ```
 sub unpack-float(
-    Buf $float-buf,
+    Buf $float-buf, 
     Endianness :$byte-order = Endianness::big-endian
 ) returns Numeric
 ```
@@ -172,7 +174,7 @@ Unpack a Buf containing a single-precision floating-point number (float) into a 
 
 ```
 sub pack-int32(
-    Cool $int,
+    Cool $int, 
     Endianness :$byte-order = Endianness::big-endian
 ) returns Buf
 ```
@@ -183,7 +185,7 @@ Pack an Int to an 4 byte integer buffer Exported via tag :ints. Be aware that th
 
 ```
 sub unpack-int32(
-    Buf $int-buf,
+    Buf $int-buf, 
     Endianness :$byte-order = Endianness::big-endian
 ) returns Int
 ```
@@ -194,7 +196,7 @@ Unpack a signed 4 byte integer buffer. Exported via tag :ints.
 
 ```
 sub pack-uint32(
-    Cool $int,
+    Cool $int, 
     Endianness :$byte-order = Endianness::big-endian
 ) returns Buf
 ```
@@ -205,7 +207,7 @@ Pack an Int to an 4 byte unsigned integer buffer Exported via tag :ints. Be awar
 
 ```
 sub unpack-uint32(
-    Buf $int-buf,
+    Buf $int-buf, 
     Endianness :$byte-order = Endianness::big-endian
 ) returns Int
 ```
@@ -216,7 +218,7 @@ Unpack an unsigned 4 byte integer buffer. Exported via tag :ints.
 
 ```
 sub pack-double(
-    Cool $rat,
+    Cool $rat, 
     Endianness :$byte-order = Endianness::big-endian
 ) returns Buf
 ```
@@ -227,7 +229,7 @@ Pack a Rat into a double-precision floating-point Buf (e.g. double). Exported vi
 
 ```
 sub unpack-double(
-    Buf $double-buf,
+    Buf $double-buf, 
     Endianness :$byte-order = Endianness::big-endian
 ) returns Numeric
 ```
@@ -238,7 +240,7 @@ Unpack a Buf containing a single-precision floating-point number (float) into a 
 
 ```
 sub pack-int64(
-    Cool $int,
+    Cool $int, 
     Endianness :$byte-order = Endianness::big-endian
 ) returns Buf
 ```
@@ -249,7 +251,7 @@ Pack an Int to an 8 byte integer buffer Exported via tag :ints. Be aware that th
 
 ```
 sub unpack-int64(
-    Buf $int-buf,
+    Buf $int-buf, 
     Endianness :$byte-order = Endianness::big-endian
 ) returns Int
 ```
@@ -260,20 +262,20 @@ Unpack a signed 8 byte integer buffer. Exported via tag :ints.
 
 ```
 sub pack-uint64(
-    Cool $int,
+    Cool $int, 
     Endianness :$byte-order = Endianness::big-endian
 ) returns Buf
 ```
 
-Pack an Int to an 8 byte unsigned integer buffer Exported via tag :ints. Be aware that the behaviour of Int values outside the range of a signed 64bit integer [0 to 18,446,744,073,709,551,615] is undefined. BE WARNED for reasons unknown values above 7bytes are represented as a BigInt and cannot be unboxed! Maybe this will be fixed but for know this function is faulty and untested due to this behaviour.
+Pack an Int to an 8 byte unsigned integer buffer Exported via tag :ints. Be aware that the behaviour of Int values outside the range of a signed 64bit integer [0 to 18,446,744,073,709,551,615] is undefined. BE WARNED for reasons unknown values above 7 bytes are represented as a BigInt and cannot be unboxed! Maybe this will be fixed but for now this function is faulty and untested due to this behaviour.
 
 ### sub unpack-uint64
 
 ```
 sub unpack-uint64(
-    Buf $int-buf,
+    Buf $int-buf, 
     Endianness :$byte-order = Endianness::big-endian
 ) returns Int
 ```
 
-Unpack an unsigned 8 byte integer buffer. Exported via tag :ints. BE WARNED for reasons unknown values above 7bytes are lost! Maybe this will be fixed but for know this function is faulty and untested due to this behaviour.
+Unpack an unsigned 8 byte integer buffer. Exported via tag :ints. BE WARNED for reasons unknown values above 7 bytes are lost! Maybe this will be fixed but for now this function is faulty and untested due to this behaviour.
