@@ -4,7 +4,6 @@
   ],
   "tags": ["Binary", "Buf", "Native"],
   "build-depends" : [
-    "Panda::Builder",
     "Native::Resources"
   ],
   "depends" : [

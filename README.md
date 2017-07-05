@@ -150,7 +150,7 @@ FUNCTIONS
 
 ```
 sub pack-float(
-    Cool $rat, 
+    Cool $rat,
     Endianness :$byte-order = Endianness::big-endian
 ) returns Buf
 ```
@@ -161,7 +161,7 @@ Pack a Rat into a single-precision floating-point Buf (e.g. float). Exported via
 
 ```
 sub unpack-float(
-    Buf $float-buf, 
+    Buf $float-buf,
     Endianness :$byte-order = Endianness::big-endian
 ) returns Numeric
 ```
@@ -172,7 +172,7 @@ Unpack a Buf containing a single-precision floating-point number (float) into a 
 
 ```
 sub pack-int32(
-    Cool $int, 
+    Cool $int,
     Endianness :$byte-order = Endianness::big-endian
 ) returns Buf
 ```
@@ -183,7 +183,7 @@ Pack an Int to an 4 byte integer buffer Exported via tag :ints. Be aware that th
 
 ```
 sub unpack-int32(
-    Buf $int-buf, 
+    Buf $int-buf,
     Endianness :$byte-order = Endianness::big-endian
 ) returns Int
 ```
@@ -194,7 +194,7 @@ Unpack a signed 4 byte integer buffer. Exported via tag :ints.
 
 ```
 sub pack-uint32(
-    Cool $int, 
+    Cool $int,
     Endianness :$byte-order = Endianness::big-endian
 ) returns Buf
 ```
@@ -205,7 +205,7 @@ Pack an Int to an 4 byte unsigned integer buffer Exported via tag :ints. Be awar
 
 ```
 sub unpack-uint32(
-    Buf $int-buf, 
+    Buf $int-buf,
     Endianness :$byte-order = Endianness::big-endian
 ) returns Int
 ```
@@ -216,7 +216,7 @@ Unpack an unsigned 4 byte integer buffer. Exported via tag :ints.
 
 ```
 sub pack-double(
-    Cool $rat, 
+    Cool $rat,
     Endianness :$byte-order = Endianness::big-endian
 ) returns Buf
 ```
@@ -227,7 +227,7 @@ Pack a Rat into a double-precision floating-point Buf (e.g. double). Exported vi
 
 ```
 sub unpack-double(
-    Buf $double-buf, 
+    Buf $double-buf,
     Endianness :$byte-order = Endianness::big-endian
 ) returns Numeric
 ```
@@ -238,7 +238,7 @@ Unpack a Buf containing a single-precision floating-point number (float) into a 
 
 ```
 sub pack-int64(
-    Cool $int, 
+    Cool $int,
     Endianness :$byte-order = Endianness::big-endian
 ) returns Buf
 ```
@@ -249,7 +249,7 @@ Pack an Int to an 8 byte integer buffer Exported via tag :ints. Be aware that th
 
 ```
 sub unpack-int64(
-    Buf $int-buf, 
+    Buf $int-buf,
     Endianness :$byte-order = Endianness::big-endian
 ) returns Int
 ```
@@ -260,7 +260,7 @@ Unpack a signed 8 byte integer buffer. Exported via tag :ints.
 
 ```
 sub pack-uint64(
-    Cool $int, 
+    Cool $int,
     Endianness :$byte-order = Endianness::big-endian
 ) returns Buf
 ```
@@ -271,7 +271,7 @@ Pack an Int to an 8 byte unsigned integer buffer Exported via tag :ints. Be awar
 
 ```
 sub unpack-uint64(
-    Buf $int-buf, 
+    Buf $int-buf,
     Endianness :$byte-order = Endianness::big-endian
 ) returns Int
 ```

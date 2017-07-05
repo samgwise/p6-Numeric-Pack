@@ -9,24 +9,21 @@ install:
   - git clone https://github.com/tadzik/rakudobrew %USERPROFILE%\rakudobrew
   - SET PATH=%USERPROFILE%\rakudobrew\bin;%PATH%
   - rakudobrew build moar
-  - rakudobrew build panda
+  - rakudobrew build zef
+  # - rakudobrew build panda
   - cd %APPVEYOR_BUILD_FOLDER%
-  - panda --notests installdeps .
+  # - panda --notests installdeps .
+  # - perl6 -MPanda::Builder -e 'Panda::Builder.build(~$*CWD)'
+  - zef --verbose --depsonly install .
+  # while we are using a native build of Rakudo we'll need to go around the build system a bit
+  - perl6 Build.p6
+  # FIX fo perl6 not being found
+  - perl6 -e "spurt 'Makefile', slurp('Makefile').subst(/perl6/, 'perl', :g)"
+  - nmake
 
-build:
-  - perl6 -MPanda::Builder -e 'Panda::Builder.build(~$*CWD)'
+build: false
 
 test_script:
   - prove -v -e "perl6 -Ilib" t/
 
 shallow_clone: true
-
-notifications:
-
-  # Email
-  - provider: Email
-    to:
-      - samgwise@gmail.com
-    subject: 'Numeric::Pack build {{status}}'           # optional
-    message: "{{message}}, {{commitId}}, {{status}}"    # optional
-    on_build_status_changed: true
