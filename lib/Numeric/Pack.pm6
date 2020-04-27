@@ -1,11 +1,11 @@
 use v6;
-unit module Numeric::Pack:ver<0.3.0>;
+unit module Numeric::Pack:ver<0.4.0>;
 
 =begin pod
 
 =head1 NAME
 
-Numeric::Pack - Convert perl6 Numerics to Bufs and back again!
+Numeric::Pack - Convert Raku Numerics to Bufs and back again!
 
 =head1 SYNOPSIS
 
@@ -32,15 +32,11 @@ Numeric::Pack - Convert perl6 Numerics to Bufs and back again!
 
 =head1 DESCRIPTION
 
-Numeric::Pack is a Perl6 module for packing values of the Numeric role into Buf objects
+Numeric::Pack is a Raku module for packing values of the Numeric role into Buf objects
 (With the exception of Complex numbers).
-Currently there are no core language mechanisms for packing the majority of Numeric types into C compatible Bufs.
-The experimental pack language feature module does not yet implement packing to and from floating-point representations,
-A feature used by many modules in the Perl5 pack and unpack routines, (Since righting this the 5Pack module was released).
-Numeric::Pack fills this gap in functionality through utilising the facilities offered by the core NativeCall module and is now pure perl.
-Fixed size integer types are included for completeness and are used internally to assist in assessing a system's byte ordering.
-
-Byte ordering is controlled with the ByteOrder enum.
+This module provides a Rakudo compatible, non-experimental, numeric packing and unpacking facility, built with utilities of NativeCall.
+Integer ranges from 8 to 64 bits are supported and floating point as well as double precision floating point numbers.
+Byte order defaults to the native byte order of the system and can be specified with the ByteOrder enum.
 
 Numeric::Pack exports the enum ByteOrder by default (ByteOrder is exported as :MANDATORY).
 
@@ -63,22 +59,27 @@ Use :floats or :ints flags to export subsets of the module's functionality.
         Export tag       | Functions
         ===============================
         :floats     | pack-float, unpack-float, pack-double, unpack-double
-        :ints       | pack-uint32, pack-int32, unpack-int32, unpack-uint32, pack-int64, unpack-int64, pack-uint64, unpack-uint64
+        :ints       | pack-uint32, pack-int32, unpack-int32, unpack-uint32, pack-int64, unpack-int64, pack-uint64, unpack-uint64, pack-int16, unpack-int16, pack-uint16, unpack-uint16, pack-int8, unpack-int8, pack-uint8, unpack-uint8
 =end table
-
-=head1 TODO
-
-=item larger types
-=item smaller types
-=item optimise memory management
 
 =head1 CHANGES
 
 =begin table
+      Added 8 and 16 bit integer types                  | Expanded potential use cases          | 2020-04-27
       Removed bundled native library, now pure perl6    | Improved portability and reliability  | 2018-06-20
       Added pack-uint32, pack-uint32 and unpack-uint32  | Added support for unsigned types      | 2017-04-20
       Changed named argument :endianness to :byte-order | Signatures now read more naturally    | 2016-08-30
 =end table
+
+=head1 SEE ALSO
+
+Rakudo core from 6.d 2018 and later supports reading values from a blob8 with a very similar interface to this module, see the docs here: L<https://docs.perl6.org/type/Blob#Methods_on_blob8_only_(6.d,_2018.12_and_later)>.
+
+The L<Native::Packing|https://github.com/pdf-raku/Native-Packing-raku> module provides a role based packing mechanism for classes.
+
+The L<Binary::Structured|https://github.com/avuserow/perl6-binary-structured> module appears to be similar to Native::Packing but implemented via a class inheritance interface.
+
+The L<P5pack|https://modules.raku.org/dist/P5pack:cpan:ELIZABETH> module is a re-implementation of perl 5's pack subroutine (Raku's pack subroutine is currently experimental in rakudo).
 
 =head1 AUTHOR
 
@@ -133,7 +134,7 @@ class Word32 is repr('CUnion') does ByteUnion {
     method set-buf(Buf $buf, ByteOrder :$byte-order = native-byte-order() --> Word32) {
         my CArray[uint8] $bytes := nativecast(CArray[uint8], self);
         for order-bytes($buf, :$byte-order)[0..3].kv -> $i, $byte {
-            $bytes[$i] = $byte
+            $bytes[$i] = $byte // 0x0
         }
     }
 
@@ -180,7 +181,7 @@ sub unpack-float(Buf $float-buf, ByteOrder :$byte-order = native-byte-order() --
 sub pack-int32(Int(Cool) $int, ByteOrder :$byte-order = native-byte-order() --> Buf) is export(:ints)
 #= Pack an Int to a 4 byte integer buffer
 #= Exported via tag :ints.
-#= Be aware that the behaviour of Int values outside the range of a signed 32bit integer
+#= Be aware that the behaviour of Int values outside the range of a signed 32 bit integer
 #= [−2,147,483,648 to 2,147,483,647]
 #= is undefined.
 {
@@ -201,7 +202,7 @@ sub unpack-int32(Buf $int-buf, ByteOrder :$byte-order = native-byte-order() --> 
 sub pack-uint32(UInt(Cool) $int, ByteOrder :$byte-order = native-byte-order() --> Buf) is export(:ints)
 #= Pack an Int to a 4 byte unsigned integer buffer
 #= Exported via tag :ints.
-#= Be aware that the behaviour of Int values outside the range of a signed 32bit integer
+#= Be aware that the behaviour of Int values outside the range of an unsigned 32 bit integer
 #= [0 to 4,294,967,295]
 #= is undefined.
 {
@@ -236,7 +237,7 @@ class Word64 is repr('CUnion') does ByteUnion {
     method set-buf(Buf $buf, ByteOrder :$byte-order = native-byte-order() --> Word32) {
         my CArray[uint8] $bytes := nativecast(CArray[uint8], self);
         for order-bytes($buf, :$byte-order)[0..7].kv -> $i, $byte {
-            $bytes[$i] = $byte
+            $bytes[$i] = $byte // 0x0
         }
     }
 
@@ -278,7 +279,7 @@ sub pack-double(Rat(Cool) $rat, ByteOrder :$byte-order = native-byte-order() -->
 #= Pack a Rat into a double-precision floating-point Buf (e.g. double).
 #= Exported via tag :floats.
 #= Be aware that Rats and doubles are not directly analogous and
-#=  as such you should expect some variation in the values packed via this method and the original   value.
+#=  as such you should expect some variation in the values packed via this method and the original value.
 {
   my Word64 $word .= new;
   $word.set-float($rat);
@@ -298,7 +299,7 @@ sub unpack-double(Buf $double-buf, ByteOrder :$byte-order = native-byte-order() 
 sub pack-int64(Int(Cool) $int, ByteOrder :$byte-order = native-byte-order() --> Buf) is export(:ints)
 #= Pack an Int to an 8 byte integer buffer
 #= Exported via tag :ints.
-#= Be aware that the behaviour of Int values outside the range of a signed 64bit integer
+#= Be aware that the behaviour of Int values outside the range of a signed 64 bit integer
 #= [−9,223,372,036,854,775,808 to 9,223,372,036,854,775,807]
 #= is undefined.
 {
@@ -317,9 +318,9 @@ sub unpack-int64(Buf $int-buf, ByteOrder :$byte-order = native-byte-order() --> 
 }
 
 sub pack-uint64(UInt(Cool) $int, ByteOrder :$byte-order = native-byte-order() --> Buf) is export(:ints)
-#= Pack an Int to an 8 byte unsigned integer buffer
+#= Pack an UInt to an 8 byte unsigned integer buffer
 #= Exported via tag :ints.
-#= Be aware that the behaviour of Int values outside the range of a signed 64bit integer
+#= Be aware that the behaviour of Int values outside the range of an unsigned 64bit integer
 #= [0 to 18,446,744,073,709,551,615]
 #= is undefined.
 {
@@ -337,6 +338,164 @@ sub unpack-uint64(Buf $int-buf, ByteOrder :$byte-order = native-byte-order() -->
   $word.as-uint;
 }
 
+### 2 byte types:
+
+class Word16 is repr('CUnion') does ByteUnion {
+    has int16 $!int;
+    has uint16 $!uint;
+    # has num16 $!float; # Doesn't make sense to have a float for this word length
+
+    method as-buf(ByteOrder :$byte-order = native-byte-order() --> Buf) {
+        my CArray[uint8] $bytes = nativecast(CArray[uint8], self);
+        byte-array-to-buf($bytes, 2, :$byte-order)
+    }
+
+    method set-buf(Buf $buf, ByteOrder :$byte-order = native-byte-order() --> Word16) {
+        my CArray[uint8] $bytes := nativecast(CArray[uint8], self);
+        for order-bytes($buf, :$byte-order)[0..2].kv -> $i, $byte {
+            $bytes[$i] = $byte // 0x0
+        }
+    }
+
+    method as-int( --> Int) { $!int }
+
+    method as-float( --> Rat) { fail "No float packing available for word length of 16bits" }
+
+    method as-uint( --> UInt) {
+        # Handle native uint unpacking rakudo bug
+        self.as-buf(:byte-order(little-endian))[]
+            .kv
+            .map( -> $k, $v { $v +< ($k * 8) })
+            .sum
+    }
+
+    method set-int(Int $i) { $!int = $i }
+
+    method set-float(Rat $r) { fail "No float packing available for word length of 16bits" }
+
+    method set-uint(UInt $i) { $!uint = $i }
+}
+
+sub pack-int16(Int(Cool) $int, ByteOrder :$byte-order = native-byte-order() --> Buf) is export(:ints)
+#= Pack an Int to a 2 byte integer buffer
+#= Exported via tag :ints.
+#= Be aware that the behaviour of Int values outside the range of a signed 16bit integer
+#= [−32,768 to 32,767]
+#= is undefined.
+{
+  my Word16 $word .= new;
+  $word.set-int($int);
+  $word.as-buf(:$byte-order);
+}
+
+sub unpack-int16(Buf $int-buf, ByteOrder :$byte-order = native-byte-order() --> Int) is export(:ints)
+#= Unpack a signed 2 byte integer buffer.
+#= Exported via tag :ints.
+{
+  my Word16 $word .= new;
+  $word.set-buf($int-buf, :$byte-order);
+  $word.as-int;
+}
+
+sub pack-uint16(UInt(Cool) $int, ByteOrder :$byte-order = native-byte-order() --> Buf) is export(:ints)
+#= Pack an Int to a 2 byte unsigned integer buffer
+#= Exported via tag :ints.
+#= Be aware that the behaviour of Int values outside the range of an unsigned 16bit integer
+#= [0 to 65,535]
+#= is undefined.
+{
+  my Word16 $word .= new;
+  $word.set-uint($int);
+  $word.as-buf(:$byte-order);
+}
+
+sub unpack-uint16(Buf $int-buf, ByteOrder :$byte-order = native-byte-order() --> Int) is export(:ints)
+#= Unpack an unsigned 2 byte integer buffer.
+#= Exported via tag :ints.
+{
+  my Word16 $word .= new;
+  $word.set-buf($int-buf, :$byte-order);
+  $word.as-uint;
+}
+
+#
+### 1 byte types:
+#
+
+class Word8 is repr('CUnion') does ByteUnion {
+    has int8 $!int;
+    has uint8 $!uint;
+    # has num8 $!float; # Doesn't make sense to have a float for this word length
+
+    method as-buf(ByteOrder :$byte-order = native-byte-order() --> Buf) {
+        Buf.new($!uint)
+    }
+
+    method set-buf(Buf $buf, ByteOrder :$byte-order = native-byte-order() --> Word8) {
+        $!uint = $_ // 0x0 given $buf[].head;
+        self
+    }
+
+    method as-int( --> Int) { $!int }
+
+    method as-float( --> Rat) { fail "No float packing available for word length of 8 bits" }
+
+    method as-uint( --> UInt) {
+        # Handle native uint unpacking rakudo bug
+        self.as-buf(:byte-order(little-endian))[]
+            .kv
+            .map( -> $k, $v { $v +< ($k * 8) })
+            .sum
+    }
+
+    method set-int(Int $i) { $!int = $i }
+
+    method set-float(Rat $r) { fail "No float packing available for word length of 8 bits" }
+
+    method set-uint(UInt $i) { $!uint = $i }
+}
+
+sub pack-int8(Int(Cool) $int, ByteOrder :$byte-order = native-byte-order() --> Buf) is export(:ints)
+#= Pack an Int to a 1 byte integer buffer
+#= Exported via tag :ints.
+#= Be aware that the behaviour of Int values outside the range of a signed 8 bit integer
+#= [−128 to 127]
+#= is undefined.
+{
+  my Word8 $word .= new;
+  $word.set-int($int);
+  $word.as-buf(:$byte-order);
+}
+
+sub unpack-int8(Buf $int-buf, ByteOrder :$byte-order = native-byte-order() --> Int) is export(:ints)
+#= Unpack a signed 1 byte integer buffer.
+#= Exported via tag :ints.
+{
+  my Word8 $word .= new;
+  $word.set-buf($int-buf, :$byte-order);
+  $word.as-int;
+}
+
+sub pack-uint8(UInt(Cool) $int, ByteOrder :$byte-order = native-byte-order() --> Buf) is export(:ints)
+#= Pack an Int to a 1 byte unsigned integer buffer
+#= Exported via tag :ints.
+#= Be aware that the behaviour of Int values outside the range of an unsigned 16bit integer
+#= [0 to 255]
+#= is undefined.
+{
+  my Word8 $word .= new;
+  $word.set-uint($int);
+  $word.as-buf(:$byte-order);
+}
+
+sub unpack-uint8(Buf $int-buf, ByteOrder :$byte-order = native-byte-order() --> Int) is export(:ints)
+#= Unpack an unsigned 1 byte integer buffer.
+#= Exported via tag :ints.
+{
+  my Word8 $word .= new;
+  $word.set-buf($int-buf, :$byte-order);
+  $word.as-uint;
+}
 
 #
 # Utils:

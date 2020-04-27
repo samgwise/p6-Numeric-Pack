@@ -3,7 +3,7 @@ use v6;
 use Test;
 use Numeric::Pack;
 
-plan 32;
+plan 40;
 
 use-ok 'Numeric::Pack';
 use Numeric::Pack :ALL;
@@ -23,11 +23,15 @@ is ( unpack-int32 Buf.new(0x01, 0, 0, 0), :byte-order(little-endian)  ), 0x01, "
 is pack-float(  12.375, :byte-order(big-endian) ).perl, Buf.new(0x41, 0x46, 0x00, 0).perl,              "pack-float 12.375";
 is pack-double( 12.375, :byte-order(big-endian) ).perl, Buf.new(0x40, 0x28, 0xC0, 0, 0, 0, 0, 0).perl,  "pack-double 12.375";
 
+is pack-int8(127, :byte-order(big-endian)).perl, Buf.new(127).perl,                             "pack-int8 127";
+is pack-int16(1024, :byte-order(big-endian)).perl, Buf.new(0x04, 0).perl,                       "pack-int16 1024";
 is pack-int32(1024, :byte-order(big-endian)).perl, Buf.new(0, 0, 0x04, 0).perl,                 "pack-int32 1024";
 is pack-int64(1024, :byte-order(big-endian)).perl, Buf.new(0, 0, 0x00, 0, 0, 0, 0x04, 0).perl,  "pack-int64 1024";
 
-is pack-uint32(1024, :byte-order(big-endian)).perl, Buf.new(0, 0, 0x04, 0).perl,                 "pack-int32 1024";
-is pack-uint64(1024, :byte-order(big-endian)).perl, Buf.new(0, 0, 0x00, 0, 0, 0, 0x04, 0).perl,  "pack-int64 1024";
+is pack-uint8(127, :byte-order(big-endian)).perl, Buf.new(127).perl,                            "pack-uint8 127";
+is pack-uint16(1024, :byte-order(big-endian)).perl, Buf.new(0x04, 0).perl,                      "pack-uint16 1024";
+is pack-uint32(1024, :byte-order(big-endian)).perl, Buf.new(0, 0, 0x04, 0).perl,                "pack-uint32 1024";
+is pack-uint64(1024, :byte-order(big-endian)).perl, Buf.new(0, 0, 0x00, 0, 0, 0, 0x04, 0).perl, "pack-uint64 1024";
 
 #
 # Test unpacking
@@ -35,11 +39,15 @@ is pack-uint64(1024, :byte-order(big-endian)).perl, Buf.new(0, 0, 0x00, 0, 0, 0,
 is unpack-float(  Buf.new(0x41, 0x46, 0x00, 0),             :byte-order(big-endian) ), 12.375, "unpack-float 12.375";
 is unpack-double( Buf.new(0x40, 0x28, 0xC0, 0, 0, 0, 0, 0), :byte-order(big-endian) ), 12.375, "unpack-double 12.375";
 
-is unpack-int32(Buf.new(0, 0, 0x04, 0),                :byte-order(big-endian)), 1024, "unpack-int32 1024";
-is unpack-int64(Buf.new(0, 0, 0x00, 0, 0, 0, 0x04, 0), :byte-order(big-endian)), 1024, "unpack-int64 1024";
+is unpack-int8(Buf.new(127),                            :byte-order(big-endian)),   127,    "unpack-int8 127";
+is unpack-int16(Buf.new(0x04, 0),                       :byte-order(big-endian)),   1024,   "unpack-int16 1024";
+is unpack-int32(Buf.new(0, 0, 0x04, 0),                :byte-order(big-endian)),    1024,   "unpack-int32 1024";
+is unpack-int64(Buf.new(0, 0, 0x00, 0, 0, 0, 0x04, 0), :byte-order(big-endian)),    1024,   "unpack-int64 1024";
 
-is unpack-uint32(Buf.new(0, 0, 0x04, 0),                :byte-order(big-endian)), 1024, "unpack-int32 1024";
-is unpack-uint64(Buf.new(0, 0, 0x00, 0, 0, 0, 0x04, 0), :byte-order(big-endian)), 1024, "unpack-int64 1024";
+is unpack-uint8(Buf.new(127),                           :byte-order(big-endian)),   127,    "unpack-uint8 127";
+is unpack-uint16(Buf.new(0x04, 0),                      :byte-order(big-endian)),   1024,   "unpack-uint16 1024";
+is unpack-uint32(Buf.new(0, 0, 0x04, 0),                :byte-order(big-endian)),   1024,   "unpack-uint32 1024";
+is unpack-uint64(Buf.new(0, 0, 0x00, 0, 0, 0, 0x04, 0), :byte-order(big-endian)),   1024,   "unpack-uint64 1024";
 
 #
 # Test limits

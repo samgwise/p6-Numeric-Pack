@@ -1,25 +1,30 @@
 {
-  "authors" : [
+  "authors": [
     "Sam Gillespie"
   ],
-  "build-depends" : [ ],
-  "depends" : [
+  "build-depends": [],
+  "depends": [
     "NativeCall"
   ],
-  "description" : "Convert perl6 Numerics to Bufs and back again!",
-  "license" : "Artistic-2.0",
-  "name" : "Numeric::Pack",
-  "perl" : "6.c",
-  "provides" : {
-    "Numeric::Pack" : "lib/Numeric/Pack.pm6"
+  "description": "Convert Raku Numerics to Bufs and back again!",
+  "license": "Artistic-2.0",
+  "name": "Numeric::Pack",
+  "perl": "6.c",
+  "provides": {
+    "Numeric::Pack": "lib/Numeric/Pack.pm6"
   },
-  "resources" : [ ],
-  "source-url" : "git://github.com/samgwise/p6-Numeric-Pack.git",
-  "tags" : [
+  "resources": [],
+  "source-url": "git://github.com/samgwise/p6-Numeric-Pack.git",
+  "tags": [
     "Binary",
     "Buf",
-    "Native"
+    "Native",
+    "Pack",
+    "Endian",
+    "Byte-Order",
+    "Float",
+    "Double"
   ],
-  "test-depends" : [ ],
-  "version" : "0.3.0"
+  "test-depends": [],
+  "version": "0.4.0"
 }
