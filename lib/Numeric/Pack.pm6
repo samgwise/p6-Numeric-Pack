@@ -1,5 +1,5 @@
 use v6;
-unit module Numeric::Pack:ver<0.4.0>;
+unit module Numeric::Pack:ver<0.5.0>;
 
 =begin pod
 
@@ -60,11 +60,13 @@ Use :floats or :ints flags to export subsets of the module's functionality.
         ===============================
         :floats     | pack-float, unpack-float, pack-double, unpack-double
         :ints       | pack-uint32, pack-int32, unpack-int32, unpack-uint32, pack-int64, unpack-int64, pack-uint64, unpack-uint64, pack-int16, unpack-int16, pack-uint16, unpack-uint16, pack-int8, unpack-int8, pack-uint8, unpack-uint8
+        :ber        | pack-ber, unpack-ber, collect-ber
 =end table
 
 =head1 CHANGES
 
 =begin table
+      Added ber encoding and decoding ala perl pack 'w' | Expanded potential use cases          | 2020-04-28
       Added 8 and 16 bit integer types                  | Expanded potential use cases          | 2020-04-27
       Removed bundled native library, now pure perl6    | Improved portability and reliability  | 2018-06-20
       Added pack-uint32, pack-uint32 and unpack-uint32  | Added support for unsigned types      | 2017-04-20
@@ -495,6 +497,48 @@ sub unpack-uint8(Buf $int-buf, ByteOrder :$byte-order = native-byte-order() --> 
   my Word8 $word .= new;
   $word.set-buf($int-buf, :$byte-order);
   $word.as-uint;
+}
+
+
+#
+# Variable width encodings
+#
+
+sub pack-ber(UInt $val --> Buf) is export(:ber)
+#= Analogue to the perl pack 'w' option. Which is stated to be different to ANS.1 BER format, see: https://perldoc.perl.org/perlpacktut.html#Another-Portable-Binary-Encoding
+#= This encoding handles an unsigned integer value of an arbitrary size in the minimum number of bytes. Each byte has 7 bits available with the first bit signalling continuation or conclusion of the encoded value.
+{
+  return Buf.new($val) if $val < 128;
+  # Begin dumb string manipulation encoding...
+  # say "Base 2 of val: ", $val.base(2);
+  # say "flip of val: ", $val.base(2).flip;
+  # say "split of val: ", $val.base(2).flip.comb(/\d**1..7/).kv.perl;
+  Buf.new: |$val.base(2).flip.comb(/\d**1..7/).kv.map( -> $k, $v { $k == 0 ?? ('0' ~ $v.flip).parse-base(2) !! ('1' ~ '0000000'.substr($v.chars) ~ $v.flip).parse-base(2) } ).reverse
+}
+
+sub unpack-ber(Buf $bytes --> UInt) is export(:ber)
+#= Corresponding unpacker for pack-ber, the resulting Int will be 0 to an arbitrary limit.
+#= Decoding will always result in a value but an error in the encoding will not be reported.
+#= You can use collect-ber() to obtain a sub buffer for decoding from another buffer.
+{
+  return 0 if $bytes.bytes < 1;
+  $bytes[].map( { .base(2) } ).map( { ('00000000'.substr(.chars) ~  $_).substr(1) } ).join.parse-base(2)
+}
+
+sub collect-ber(Buf $bytes, UInt :$offset = 0 --> Buf) is export(:ber)
+#= This utility returns a copy of the sub buffer containing a ber encoded integer from the given offset.
+#= The sub buffer can then be given to unpack ber to decode the buffer into an Int.
+{
+  return Buf unless $bytes;
+  my Int $length = $bytes.bytes;
+  return Buf.new() unless $length > 0 or $offset >= $length;
+
+  my Int $index = $offset;
+  while $index < $length and ($bytes[$index] +& 0x80) > 127 {
+    $index += 1
+  }
+
+  Buf.new: |$bytes[$offset..$index]
 }
 
 #

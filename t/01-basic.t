@@ -3,7 +3,7 @@ use v6;
 use Test;
 use Numeric::Pack;
 
-plan 40;
+plan 53;
 
 use-ok 'Numeric::Pack';
 use Numeric::Pack :ALL;
@@ -33,6 +33,14 @@ is pack-uint16(1024, :byte-order(big-endian)).perl, Buf.new(0x04, 0).perl,      
 is pack-uint32(1024, :byte-order(big-endian)).perl, Buf.new(0, 0, 0x04, 0).perl,                "pack-uint32 1024";
 is pack-uint64(1024, :byte-order(big-endian)).perl, Buf.new(0, 0, 0x00, 0, 0, 0, 0x04, 0).perl, "pack-uint64 1024";
 
+# 01 8100 8101 81807F
+# 1, 128, 128+1, 128*128+127
+is-deeply pack-ber(0)[],                Buf.new(0x00)[],                'pack-ber for 0';
+is-deeply pack-ber(1)[],                Buf.new(0x01)[],                'pack-ber for 1';
+is-deeply pack-ber(128)[],              Buf.new(0x81, 0x00)[],          'pack-ber for 128';
+is-deeply pack-ber(128 + 1)[],          Buf.new(0x81, 0x01)[],          'pack-ber for 128 + 1';
+is-deeply pack-ber(128 * 128 + 127)[],  Buf.new(0x81, 0x80, 0x7F)[],    'pack-ber for 128 * 128 + 127';
+
 #
 # Test unpacking
 #
@@ -48,6 +56,18 @@ is unpack-uint8(Buf.new(127),                           :byte-order(big-endian))
 is unpack-uint16(Buf.new(0x04, 0),                      :byte-order(big-endian)),   1024,   "unpack-uint16 1024";
 is unpack-uint32(Buf.new(0, 0, 0x04, 0),                :byte-order(big-endian)),   1024,   "unpack-uint32 1024";
 is unpack-uint64(Buf.new(0, 0, 0x00, 0, 0, 0, 0x04, 0), :byte-order(big-endian)),   1024,   "unpack-uint64 1024";
+
+# 01 8100 8101 81807F
+# 1, 128, 128+1, 128*128+127
+is unpack-ber(Buf.new()),                   0,                  'unpack-ber for Empty';
+is unpack-ber(Buf.new(0x00)),               0,                  'unpack-ber for 0';
+is unpack-ber(Buf.new(0x01)),               1,                  'unpack-ber for 1';
+is unpack-ber(Buf.new(0x81, 0x00)),         128,                'unpack-ber for 128';
+is unpack-ber(Buf.new(0x81, 0x01)),         128 + 1,            'unpack-ber for 128 + 1';
+is unpack-ber(Buf.new(0x81, 0x80, 0x7F)),   128 * 128 + 127,    'unpack-ber for 128 * 128 + 127';
+# Collect-ber
+is unpack-ber(collect-ber(Buf.new(0x01, 0x81, 0x80, 0x7F))),        1,          'collect-ber then unpack-ber for 1';
+is unpack-ber(collect-ber(Buf.new(0x81, 0x01, 0x81, 0x80, 0x7F))),  128 +1,     'collect-ber then unpack-ber for 128 + 1';
 
 #
 # Test limits
