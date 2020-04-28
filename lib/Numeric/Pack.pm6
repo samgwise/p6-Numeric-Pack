@@ -23,7 +23,7 @@ Numeric::Pack - Convert Raku Numerics to Bufs and back again!
   my Buf $int-buf = pack-int32 11;
   say "{ $int-buf.perl } -> { unpack-int32 $int-buf }";
 
-  # pack and unpack specific byte orders (big-endian is the default)
+  # pack and unpack specific byte orders (native-endian is the default)
   my Buf $little-endian-buf = pack-int32 11, :byte-order(little-endian);
   say "{ $little-endian-buf.perl } -> {
     unpack-int32 $little-endian-buf, :byte-order(little-endian)
